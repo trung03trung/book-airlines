@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Noto Sans', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #666666;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.vna-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .vna-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
