@@ -14,7 +14,7 @@ export default function Services() {
   const [active, setActive] = useState(0)
 
   return (
-    <section className="py-10 md:py-12 bg-vna-gray-bg">
+    <section className="relative -mt-[120px] z-10 pt-20 pb-10 md:pt-24 md:pb-12">
       <div className="vna-container">
         <h2 className="text-[22px] font-bold text-vna-navy mb-6">Trọn vẹn trải nghiệm</h2>
 
@@ -22,8 +22,8 @@ export default function Services() {
         <div className="flex overflow-x-auto mb-6 border-b border-vna-border">
           {categories.map((cat, i) => (
             <button key={i} onClick={() => setActive(i)} className={`flex flex-col items-center gap-2 min-w-[110px] px-3 py-4 text-center transition-all border-b-[3px] ${active === i ? 'border-vna-teal bg-white text-vna-teal' : 'border-transparent text-vna-gray-light hover:text-vna-teal'}`}>
-              <cat.icon size={20} />
-              <span className="text-[10px] font-semibold leading-tight">{cat.label}</span>
+              <cat.icon size={24} />
+              <span className="text-[11px] font-semibold leading-tight">{cat.label}</span>
             </button>
           ))}
         </div>

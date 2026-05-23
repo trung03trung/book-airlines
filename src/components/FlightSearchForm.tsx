@@ -49,7 +49,7 @@ export default function FlightSearchForm() {
   ]
 
   return (
-    <section className="relative -mt-12 z-20">
+    <section className="relative -mt-[480px] z-20">
       {/* Backdrop blur when form is active */}
       {formActive && (
         <div className="fixed inset-0 z-30 bg-black/15 backdrop-blur-[1px]" onClick={() => { setFormActive(false); setShowDropdown(false) }} />
@@ -63,7 +63,7 @@ export default function FlightSearchForm() {
               <button
                 key={t.key}
                 onClick={() => { setTab(t.key); setFormActive(true) }}
-                className={`flex-1 py-4 text-[14px] font-medium transition-colors text-center ${
+                className={`flex-1 py-5 text-[14px] font-medium transition-colors text-center ${
                   tab === t.key
                     ? 'text-vna-teal border-b-[3px] border-vna-teal'
                     : 'text-vna-gray-text hover:text-vna-teal'

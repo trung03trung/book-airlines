@@ -15,7 +15,7 @@ function App() {
       <Header collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
       <div
         className="transition-all duration-300"
-        style={{ marginLeft: sidebarCollapsed ? 60 : 160 }}
+        style={{ marginLeft: sidebarCollapsed ? 60 : 200 }}
       >
         <Hero />
         <main>

@@ -18,7 +18,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full h-[500px] md:h-[550px] overflow-hidden">
+    <section className="relative w-full h-[900px] md:h-[1050px] overflow-hidden">
       {slides.map((s, i) => (
         <div key={i} className={`absolute inset-0 transition-opacity duration-1000 ${i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${s.img})` }} />

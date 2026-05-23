@@ -33,8 +33,8 @@ const navItems = [
 export default function Header({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const [activeMenu, setActiveMenu] = useState<number | null>(null)
 
-  const sidebarWidth = collapsed ? 'w-[60px]' : 'w-[160px]'
-  const sidebarPx = collapsed ? 60 : 160
+  const sidebarWidth = collapsed ? 'w-[60px]' : 'w-[200px]'
+  const sidebarPx = collapsed ? 60 : 200
 
   return (
     <>
@@ -56,7 +56,7 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
             <button
               key={i}
               onClick={() => item.sections && setActiveMenu(activeMenu === i ? null : i)}
-              className={`w-full flex items-center gap-3 py-4 transition-colors ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#DAA520]' : 'hover:bg-[#DAA520]'}`}
+              className={`w-full flex items-center gap-3 py-5 transition-colors ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#DAA520]' : 'hover:bg-[#DAA520]'}`}
               title={item.label}
             >
               <item.icon size={18} className="flex-shrink-0" style={{ color: 'white' }} />
