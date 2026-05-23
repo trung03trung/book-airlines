@@ -39,7 +39,7 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
   return (
     <>
       {/* Left Sidebar - always visible, just narrower when collapsed */}
-      <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-all duration-300 ${sidebarWidth}`} style={{ backgroundColor: '#B8860B' }}>
+      <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-all duration-300 ${sidebarWidth}`} style={{ backgroundColor: '#006885' }}>
         {/* Logo */}
         <div className="flex items-center justify-center py-4">
           <a href="/">
@@ -56,11 +56,11 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
             <button
               key={i}
               onClick={() => item.sections && setActiveMenu(activeMenu === i ? null : i)}
-              className={`w-full flex items-center gap-3 py-5 transition-colors ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#DAA520]' : 'hover:bg-[#DAA520]'}`}
+              className={`group w-full flex items-center gap-3 py-5 transition-colors rounded-l-full ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#cce1e7]' : 'hover:bg-[#cce1e7]'}`}
               title={item.label}
             >
-              <item.icon size={18} className="flex-shrink-0" style={{ color: 'white' }} />
-              {!collapsed && <span className="text-[14px] whitespace-nowrap" style={{ color: 'white' }}>{item.label}</span>}
+              <item.icon size={18} className={`flex-shrink-0 transition-colors ${activeMenu === i ? 'text-black' : 'text-white group-hover:text-black'}`} />
+              {!collapsed && <span className={`text-[14px] whitespace-nowrap transition-colors ${activeMenu === i ? 'text-black' : 'text-white group-hover:text-black'}`}>{item.label}</span>}
             </button>
           ))}
         </nav>
@@ -103,8 +103,8 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
       {activeMenu !== null && navItems[activeMenu].sections && (
         <>
           <div
-            className="fixed top-[60px] z-[49] bg-white shadow-2xl overflow-y-auto max-h-[80vh] rounded-r-xl"
-            style={{ left: `${sidebarPx}px`, width: '380px' }}
+            className="fixed top-[60px] z-[49] shadow-2xl overflow-y-auto max-h-[80vh] rounded-r-xl"
+            style={{ left: `${sidebarPx}px`, width: '380px', backgroundColor: '#cce1e7' }}
           >
             <div className="flex justify-end p-4">
               <button onClick={() => setActiveMenu(null)} className="text-vna-gray-text hover:text-vna-teal transition-colors">
@@ -121,7 +121,7 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
                   <ul className="space-y-1">
                     {section.items.map((item, ii) => (
                       <li key={ii}>
-                        <a href="#" className="block py-2.5 px-2 text-[13px] text-vna-gray-text hover:text-vna-teal hover:bg-vna-gray-bg transition-colors">
+                        <a href="#" className="block py-2.5 px-2 text-[13px] text-vna-gray-text hover:text-vna-teal hover:bg-white/50 transition-colors">
                           {item}
                         </a>
                       </li>

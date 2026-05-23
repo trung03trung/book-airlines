@@ -55,7 +55,7 @@ export default function FlightSearchForm() {
         <div className="fixed inset-0 z-30 bg-black/15 backdrop-blur-[1px]" onClick={() => { setFormActive(false); setShowDropdown(false) }} />
       )}
 
-      <div className={`vna-container relative ${formActive ? 'z-40' : ''}`}>
+      <div className={`relative ${formActive ? 'z-40' : ''}`} style={{ maxWidth: '1400px', marginLeft: '3rem', marginRight: 'auto', paddingRight: '1.5rem' }}>
         <div className="bg-white shadow-xl rounded-2xl" style={{ overflow: 'visible' }}>
           {/* Tabs */}
           <div className="flex border-b border-vna-border">
