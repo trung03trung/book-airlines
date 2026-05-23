@@ -39,9 +39,9 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
   return (
     <>
       {/* Left Sidebar - always visible, just narrower when collapsed */}
-      <aside className={`fixed top-0 left-0 h-full z-50 bg-white shadow-lg flex flex-col transition-all duration-300 ${sidebarWidth}`}>
+      <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-all duration-300 ${sidebarWidth}`} style={{ backgroundColor: '#B8860B' }}>
         {/* Logo */}
-        <div className="flex items-center justify-center py-4 border-b border-vna-border">
+        <div className="flex items-center justify-center py-4">
           <a href="/">
             <svg viewBox="0 0 44 44" className="w-8 h-8">
               <path d="M22 4C24 11,27 15,32 19C27 19,24 21,22 24C20 21,17 19,12 19C17 15,20 11,22 4Z" fill="#DAA520"/>
@@ -51,23 +51,23 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-3 overflow-hidden" style={{ backgroundColor: '#B8860B' }}>
+        <nav className="flex-1 overflow-hidden">
           {navItems.map((item, i) => (
             <button
               key={i}
               onClick={() => item.sections && setActiveMenu(activeMenu === i ? null : i)}
-              className={`w-full flex items-center gap-3 py-3 transition-colors ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#DAA520]' : 'hover:bg-[#DAA520]'}`}
+              className={`w-full flex items-center gap-3 py-4 transition-colors ${collapsed ? 'justify-center px-0' : 'px-5'} ${activeMenu === i ? 'bg-[#DAA520]' : 'hover:bg-[#DAA520]'}`}
               title={item.label}
             >
-              <item.icon size={18} className="text-white flex-shrink-0" style={{ color: 'white' }} />
-              {!collapsed && <span className="text-[13px] whitespace-nowrap" style={{ color: 'white' }}>{item.label}</span>}
+              <item.icon size={18} className="flex-shrink-0" style={{ color: 'white' }} />
+              {!collapsed && <span className="text-[14px] whitespace-nowrap" style={{ color: 'white' }}>{item.label}</span>}
             </button>
           ))}
         </nav>
 
         {/* Chat button */}
         <div className={`pb-3 ${collapsed ? 'px-2' : 'px-4'}`}>
-          <button className={`flex items-center justify-center gap-2 bg-vna-teal text-white text-[12px] font-medium py-2.5 hover:bg-vna-teal-dark transition-colors ${collapsed ? 'w-full px-0' : 'w-full px-4'}`}>
+          <button className={`flex items-center justify-center gap-2 text-white text-[12px] font-medium py-2.5 transition-colors ${collapsed ? 'w-full px-0' : 'w-full px-4'}`} style={{ backgroundColor: '#006666' }}>
             <MessageCircle size={16} />
             {!collapsed && <span>Chat với NEO</span>}
           </button>
@@ -76,12 +76,12 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
         {/* Bottom - Login icon when collapsed, full panel when expanded */}
         {collapsed ? (
           <div className="pb-4 flex justify-center">
-            <button className="w-9 h-9 bg-vna-navy text-white flex items-center justify-center">
+            <button className="w-9 h-9 text-white flex items-center justify-center" style={{ backgroundColor: '#1A2B4A' }}>
               <User size={16} />
             </button>
           </div>
         ) : (
-          <div className="bg-vna-navy px-4 py-4">
+          <div className="px-4 py-4" style={{ backgroundColor: '#1A2B4A' }}>
             <p className="text-[11px] text-white/80 font-semibold tracking-wider text-center mb-2 uppercase">Lotusmiles</p>
             <button className="w-full border border-white/50 text-white text-[12px] py-1.5 mb-2 hover:bg-white/10 transition-colors">Đăng nhập</button>
             <button className="w-full border border-white/50 text-white text-[12px] py-1.5 hover:bg-white/10 transition-colors">Đăng ký</button>
@@ -103,8 +103,8 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
       {activeMenu !== null && navItems[activeMenu].sections && (
         <>
           <div
-            className="fixed top-0 h-full z-[49] bg-white shadow-2xl overflow-y-auto w-[380px] transition-all duration-300"
-            style={{ left: `${sidebarPx}px` }}
+            className="fixed top-[60px] z-[49] bg-white shadow-2xl overflow-y-auto max-h-[80vh] rounded-r-xl"
+            style={{ left: `${sidebarPx}px`, width: '380px' }}
           >
             <div className="flex justify-end p-4">
               <button onClick={() => setActiveMenu(null)} className="text-vna-gray-text hover:text-vna-teal transition-colors">
