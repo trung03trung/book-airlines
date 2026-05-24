@@ -18,14 +18,14 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative w-full h-[900px] md:h-[1050px] overflow-hidden">
+    <section className="relative w-full h-[1000px] md:h-[1200px] overflow-hidden">
       {slides.map((s, i) => (
         <div key={i} className={`absolute inset-0 transition-opacity duration-1000 ${i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${s.img})` }} />
           <div className="absolute inset-0 bg-gradient-to-l from-black/50 via-transparent to-transparent" />
 
           {/* Content - RIGHT aligned like screenshot */}
-          <div className="relative h-full flex items-center justify-end pr-8 md:pr-16">
+          <div className="relative h-full flex items-start justify-end pr-8 md:pr-16 pt-[200px]">
             <div className="text-white text-right max-w-[400px]">
               <p className="text-[14px] text-white/90 mb-2">{s.subtitle}</p>
               <h2 className="text-[32px] md:text-[44px] font-bold leading-tight mb-5 font-serif italic">{s.title}</h2>
@@ -38,7 +38,7 @@ export default function Hero() {
       ))}
 
       {/* Vertical numbered indicators - LEFT side */}
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1">
+      <div className="absolute left-6 top-[30%] -translate-y-1/2 z-20 flex flex-col items-center gap-1">
         {slides.map((_, i) => (
           <button
             key={i}

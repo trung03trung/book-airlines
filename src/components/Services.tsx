@@ -15,15 +15,15 @@ export default function Services() {
 
   return (
     <section className="relative -mt-[120px] z-10 pt-20 pb-10 md:pt-24 md:pb-12">
-      <div className="vna-container">
+      <div style={{ maxWidth: '1600px', marginLeft: '3rem', marginRight: '1.5rem' }}>
         <h2 className="text-[22px] font-bold text-vna-navy mb-6">Trọn vẹn trải nghiệm</h2>
 
         {/* Tabs */}
-        <div className="flex overflow-x-auto mb-6 border-b border-vna-border">
+        <div className="flex justify-between mb-6 border-b border-vna-border">
           {categories.map((cat, i) => (
-            <button key={i} onClick={() => setActive(i)} className={`flex flex-col items-center gap-2 min-w-[110px] px-3 py-4 text-center transition-all border-b-[3px] ${active === i ? 'border-vna-teal bg-white text-vna-teal' : 'border-transparent text-vna-gray-light hover:text-vna-teal'}`}>
+            <button key={i} onClick={() => setActive(i)} className={`flex flex-col items-center gap-2 min-w-[170px] px-8 py-4 text-center transition-all rounded-xl hover:bg-[#006885] hover:text-white ${active === i ? 'bg-[#006885] text-white' : 'text-vna-gray-light'}`}>
               <cat.icon size={24} />
-              <span className="text-[11px] font-semibold leading-tight">{cat.label}</span>
+              <span className="text-[13px] font-semibold leading-tight">{cat.label}</span>
             </button>
           ))}
         </div>
