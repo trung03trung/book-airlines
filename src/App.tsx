@@ -9,13 +9,15 @@ import Promotions from './components/Promotions'
 import Footer from './components/Footer'
 import RegisterPage from './components/RegisterPage'
 import FlightResultsPage from './components/FlightResultsPage'
+import BookingSummaryPage from './components/BookingSummaryPage'
+import PassengerInfoPage from './components/PassengerInfoPage'
 
 function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen">
+      <div>
         <Header collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
         <div
           className="transition-all duration-300"
@@ -35,6 +37,8 @@ function App() {
             } />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/flights" element={<FlightResultsPage />} />
+            <Route path="/booking" element={<BookingSummaryPage />} />
+            <Route path="/passenger-info" element={<PassengerInfoPage />} />
           </Routes>
           <Footer />
         </div>

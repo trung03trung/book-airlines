@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import React, { useState } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 
 const flights = [
@@ -16,6 +16,7 @@ function formatPrice(n: number) {
 
 export default function FlightResultsPage() {
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const from = params.get('from') || 'HAN'
   const to = params.get('to') || 'DAD'
   const fromCity = params.get('fromCity') || 'Hà Nội'
@@ -27,6 +28,7 @@ export default function FlightResultsPage() {
   const [dateOffset, setDateOffset] = useState(0)
   const [expandedFlight, setExpandedFlight] = useState<{ idx: number; cls: string } | null>(null)
   const [fareSelected, setFareSelected] = useState<{ idx: number; cls: string } | null>(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   const totalDays = 21
   const dateDays = Array.from({ length: totalDays }, (_, i) => {
@@ -38,6 +40,7 @@ export default function FlightResultsPage() {
     return {
       day: dayNames2[base.getDay()],
       date: base.getDate(),
+      month: base.getMonth() + 1,
       absIdx: dayIdx,
       price: Math.abs(dayIdx) <= 1 ? 2499000 : 1886000,
     }
@@ -50,7 +53,7 @@ export default function FlightResultsPage() {
   const monthNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       {/* Top header */}
       <header className="bg-white border-b border-gray-200">
         <div className="flex items-center justify-between px-6 py-3">
@@ -117,80 +120,95 @@ export default function FlightResultsPage() {
         </p>
 
         {/* Date slider */}
-        <div className="relative rounded-lg p-6 mb-6" style={{ backgroundColor: '#9dcdd8' }}>
+        <div className="rounded-lg p-6 mb-6" style={{ backgroundColor: '#9dcdd8' }}>
           {(() => {
             const [d, m, y] = date.split('/').map(Number)
             const base = new Date(y, m - 1, d)
-            // Ngày cuối cùng hiển thị trong cửa sổ (vị trí +5 so với center)
             const lastVisibleDate = new Date(base.getTime() + (dateOffset + 5) * 86400000)
             const firstVisibleDate = new Date(base.getTime() + (dateOffset - 5) * 86400000)
-            const daysInLastMonth = new Date(lastVisibleDate.getFullYear(), lastVisibleDate.getMonth() + 1, 0).getDate()
-            const atEndOfMonth = lastVisibleDate.getDate() === daysInLastMonth
-            const atStartOfMonth = firstVisibleDate.getDate() === 1
+            const atMaxRight = dateOffset >= 2
+            const atMaxLeft = dateOffset <= -2
 
             const jumpNextMonth = () => {
               const nextMonth1st = new Date(lastVisibleDate.getFullYear(), lastVisibleDate.getMonth() + 1, 1)
               const diff = Math.round((nextMonth1st.getTime() - base.getTime()) / 86400000) - 5
-              setDateOffset(diff)
+              setDateOffset(Math.min(diff, 2))
             }
             const jumpPrevMonth = () => {
               const prevMonthLast = new Date(firstVisibleDate.getFullYear(), firstVisibleDate.getMonth(), 0)
               const diff = Math.round((prevMonthLast.getTime() - base.getTime()) / 86400000) + 5
-              setDateOffset(diff)
+              setDateOffset(Math.max(diff, -2))
             }
 
             return (
-              <>
-                {atStartOfMonth ? (
-                  <button onClick={jumpPrevMonth} className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow-lg rounded-md w-12 h-16 flex items-center justify-center hover:bg-gray-50">
-                    <ChevronLeft size={22} className="text-gray-700" />
+          <div className="flex items-center gap-2">
+            {/* Left button */}
+            {atMaxLeft ? (
+              <button onClick={jumpPrevMonth} className="flex-shrink-0 bg-white border border-gray-300 shadow-lg rounded-md w-10 h-14 flex items-center justify-center hover:bg-gray-50">
+                <ChevronLeft size={20} className="text-gray-700" />
+              </button>
+            ) : (
+              <button onClick={() => setDateOffset(Math.max(dateOffset - 1, -2))} className="flex-shrink-0 w-9 h-9 bg-teal-600 text-white rounded-full flex items-center justify-center">
+                <ChevronLeft size={18} />
+              </button>
+            )}
+
+            <div className="flex-1 overflow-hidden">
+              <div
+                className="flex items-end gap-2"
+                style={{
+                  transition: 'margin 225ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  marginLeft: `calc(-${(dateOffset + 5) * (100 / 11)}% - ${(dateOffset + 5) * 8}px)`,
+                  width: `${(totalDays * 100) / 11}%`,
+                }}
+              >
+            {dateDays.map((d, idx) => {
+              const prevMonth = idx > 0 ? dateDays[idx - 1].month : d.month
+              const showSeparator = d.month !== prevMonth
+              return (
+                <React.Fragment key={d.absIdx}>
+                  {showSeparator && (
+                    <div className="flex flex-col items-center justify-center px-1 flex-shrink-0">
+                      <div className="text-[11px] text-gray-600 whitespace-nowrap flex gap-2">
+                        <span>Tháng {prevMonth}</span>
+                        <span>Tháng {d.month}</span>
+                      </div>
+                      <div className="w-[1px] h-[60px] border-l border-dashed border-gray-400 mt-1" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setSelectedDateIdx(d.absIdx)}
+                    className={`flex-1 flex flex-col items-center px-2 py-3 rounded ${
+                      d.absIdx === selectedDateIdx ? 'bg-yellow-500 text-white' : 'bg-white'
+                    }`}
+                  >
+                    <span className={`text-[13px] font-bold ${d.absIdx === selectedDateIdx ? '' : 'text-gray-700'}`}>
+                      {formatPrice(d.price)}
+                    </span>
+                    <span className={`text-[11px] ${d.absIdx === selectedDateIdx ? '' : 'text-gray-500'}`}>VND</span>
+                    <span className={`text-[12px] mt-1 font-medium ${d.absIdx === selectedDateIdx ? '' : 'text-gray-600'}`}>
+                      {d.day} {d.date}
+                    </span>
                   </button>
-                ) : (
-                  <button onClick={() => setDateOffset(dateOffset - 1)} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-teal-600 text-white rounded-full flex items-center justify-center z-10">
-                    <ChevronLeft size={18} />
-                  </button>
-                )}
-                {atEndOfMonth ? (
-                  <button onClick={jumpNextMonth} className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-300 shadow-lg rounded-md w-12 h-16 flex items-center justify-center hover:bg-gray-50">
-                    <ChevronRight size={22} className="text-gray-700" />
-                  </button>
-                ) : (
-                  <button onClick={() => setDateOffset(dateOffset + 1)} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-teal-600 text-white rounded-full flex items-center justify-center z-10">
-                    <ChevronRight size={18} />
-                  </button>
-                )}
-              </>
+                </React.Fragment>
+              )
+            })}
+              </div>
+            </div>
+
+            {/* Right button */}
+            {atMaxRight ? (
+              <button onClick={jumpNextMonth} className="flex-shrink-0 bg-white border border-gray-300 shadow-lg rounded-md w-10 h-14 flex items-center justify-center hover:bg-gray-50">
+                <ChevronRight size={20} className="text-gray-700" />
+              </button>
+            ) : (
+              <button onClick={() => setDateOffset(Math.min(dateOffset + 1, 2))} className="flex-shrink-0 w-9 h-9 bg-teal-600 text-white rounded-full flex items-center justify-center">
+                <ChevronRight size={18} />
+              </button>
+            )}
+          </div>
             )
           })()}
-
-          <div className="overflow-hidden px-12">
-            <div
-              className="flex items-end gap-2"
-              style={{
-                transition: 'margin 225ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1)',
-                marginLeft: `calc(-${(dateOffset + 5) * (100 / 11)}% - ${(dateOffset + 5) * 8}px)`,
-                width: `${(totalDays * 100) / 11}%`,
-              }}
-            >
-            {dateDays.map((d) => (
-              <button
-                key={d.absIdx}
-                onClick={() => setSelectedDateIdx(d.absIdx)}
-                className={`flex-1 flex flex-col items-center px-2 py-3 rounded ${
-                  d.absIdx === selectedDateIdx ? 'bg-yellow-500 text-white' : 'bg-white'
-                }`}
-              >
-                <span className={`text-[13px] font-bold ${d.absIdx === selectedDateIdx ? '' : 'text-gray-700'}`}>
-                  {formatPrice(d.price)}
-                </span>
-                <span className={`text-[11px] ${d.absIdx === selectedDateIdx ? '' : 'text-gray-500'}`}>VND</span>
-                <span className={`text-[12px] mt-1 font-medium ${d.absIdx === selectedDateIdx ? '' : 'text-gray-600'}`}>
-                  {d.day} {d.date}
-                </span>
-              </button>
-            ))}
-            </div>
-          </div>
 
           <div className="text-center mt-4">
             <button className="text-white text-[13px] flex items-center gap-1 mx-auto">
@@ -311,7 +329,7 @@ export default function FlightResultsPage() {
                         {formatPrice(expandedClass === 'economy' ? f.economy : expandedClass === 'premium' ? f.premiumEco : f.business)} <span className="text-[13px] font-normal">VND</span>
                       </p>
                       <p className="text-[13px] font-semibold text-gray-700 mb-4">
-                        {expandedClass === 'economy' ? 'Phổ Thông Linh Hoạt' : expandedClass === 'premium' ? 'Phổ Thông Đặc Biệt Linh Hoạt' : 'Thương Gia Linh Hoạt'}
+                        {expandedClass === 'economy' ? 'Phổ Thông Tiêu Chuẩn' : expandedClass === 'premium' ? 'Phổ Thông Đặc Biệt Linh Hoạt' : 'Thương Gia Linh Hoạt'}
                       </p>
 
                       <div className="space-y-3 text-[12px] text-gray-600">
@@ -361,9 +379,9 @@ export default function FlightResultsPage() {
                   {fareSelected?.idx === i && fareSelected?.cls === expandedClass && (
                     <div className="mt-6 text-center border-t border-cyan-300 pt-5">
                       <p className="text-[15px] text-gray-800 mb-3">
-                        ✅ Quý khách đã chọn {expandedClass === 'economy' ? 'Phổ Thông Linh Hoạt' : expandedClass === 'premium' ? 'Phổ Thông Đặc Biệt Linh Hoạt' : 'Thương Gia Linh Hoạt'}.
+                        ✅ Quý khách đã chọn {expandedClass === 'economy' ? 'Phổ Thông Tiêu Chuẩn' : expandedClass === 'premium' ? 'Phổ Thông Đặc Biệt Linh Hoạt' : 'Thương Gia Linh Hoạt'}.
                       </p>
-                      <button className="border-2 border-teal-700 text-teal-700 font-bold px-8 py-3 text-[15px] rounded hover:bg-teal-700 hover:text-white transition-colors">
+                      <button onClick={() => setShowUpgrade(true)} className="border-2 border-teal-700 text-teal-700 font-bold px-8 py-3 text-[15px] rounded hover:bg-teal-700 hover:text-white transition-colors">
                         XÁC NHẬN VÀ TIẾP TỤC
                       </button>
                     </div>
@@ -375,6 +393,77 @@ export default function FlightResultsPage() {
           })}
         </div>
       </div>
+
+      {/* Upgrade popup */}
+      {showUpgrade && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={() => setShowUpgrade(false)}>
+          <div className="bg-white rounded-xl w-[800px] max-w-[95vw] max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="p-8">
+              <h2 className="text-[24px] font-bold text-teal-800 mb-6">Nâng hạng vé</h2>
+
+              {/* Banner */}
+              <div className="bg-gray-50 rounded-lg p-6 flex items-center gap-6 mb-6">
+                <div className="flex-1">
+                  <h3 className="text-[18px] font-bold text-teal-700 mb-1">
+                    Nâng hạng lên Thương Gia Linh Hoạt chỉ với 2.767.000 VND
+                  </h3>
+                  <p className="text-[14px] text-gray-600">Tận hưởng chuyến bay với nhiều quyền lợi hơn</p>
+                </div>
+                <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=300&h=150&fit=crop" alt="" className="w-[200px] h-[100px] object-cover rounded-lg" />
+              </div>
+
+              {/* Comparison table */}
+              <div className="mb-6">
+                {/* Headers */}
+                <div className="grid grid-cols-3 gap-0">
+                  <div />
+                  <div className="bg-teal-700 text-white text-center py-3 rounded-tl-lg font-bold text-[14px]">Phổ Thông Tiêu Chuẩn</div>
+                  <div className="bg-yellow-600 text-white text-center py-3 rounded-tr-lg font-bold text-[14px]">Thương Gia Linh Hoạt</div>
+                </div>
+
+                {/* Rows */}
+                <div className="border border-gray-200 rounded-b-lg">
+                  <div className="grid grid-cols-3 border-b border-gray-200">
+                    <div className="p-4 text-[13px] font-medium">Thay đổi vé</div>
+                    <div className="p-4 text-[13px] text-center">Được phép</div>
+                    <div className="p-4 text-[13px] text-center">Được phép</div>
+                  </div>
+                  <div className="grid grid-cols-3 border-b border-gray-200 bg-blue-50/50">
+                    <div className="p-4 text-[13px] font-medium">Hoàn vé</div>
+                    <div className="p-4 text-[13px] text-center">Phí hoàn vé tối đa 500.000 VND mỗi hành khách</div>
+                    <div className="p-4 text-[13px] text-center">Phí hoàn vé tối đa 500.000 VND mỗi hành khách</div>
+                  </div>
+                  <div className="grid grid-cols-3 border-b border-gray-200">
+                    <div className="p-4 text-[13px] font-medium">Hành lý ký gửi</div>
+                    <div className="p-4 text-[13px] text-center">1 x 23 kg ⓘ</div>
+                    <div className="p-4 text-[13px] text-center">1 x 32 kg ⓘ</div>
+                  </div>
+                  <div className="grid grid-cols-3 border-b border-gray-200 bg-blue-50/50">
+                    <div className="p-4 text-[13px] font-medium">Hành lý xách tay</div>
+                    <div className="p-4 text-[13px] text-center">✅ Không quá 10kg</div>
+                    <div className="p-4 text-[13px] text-center">✅ Không quá 18kg</div>
+                  </div>
+                  <div className="grid grid-cols-3">
+                    <div className="p-4 text-[13px] font-medium">Số dặm tích được</div>
+                    <div className="p-4 text-[13px] text-center">⭐ Tích lũy 110% số dặm</div>
+                    <div className="p-4 text-[13px] text-center">⭐ Tích lũy 200% số dặm</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div className="border-t border-gray-200 p-6 flex items-center justify-center gap-4 bg-gray-50 rounded-b-xl">
+              <button onClick={() => { setShowUpgrade(false); const f = fareSelected ? flights[fareSelected.idx] : null; navigate(`/booking?from=${from}&to=${to}&fromCity=${encodeURIComponent(fromCity)}&toCity=${encodeURIComponent(toCity)}&date=${date}&fare=${encodeURIComponent('Phổ Thông Tiêu Chuẩn')}&price=${f?.economy || 2167000}&code=${f?.code || 'VN 7151'}&depart=${f?.depart || '05:00'}&arrive=${f?.arrive || '06:25'}`) }} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-6 py-3 text-[13px] rounded transition-colors">
+                GIỮ PHỔ THÔNG TIÊU CHUẨN
+              </button>
+              <button className="border-2 border-teal-700 text-teal-700 font-bold px-6 py-3 text-[13px] rounded hover:bg-teal-700 hover:text-white transition-colors">
+                NÂNG HẠNG LÊN THƯƠNG GIA LINH HOẠT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
