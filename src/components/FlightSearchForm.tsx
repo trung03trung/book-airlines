@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ArrowRightLeft, Plane, Search } from 'lucide-react'
 
 type Tab = 'book' | 'manage' | 'checkin' | 'status' | 'schedule'
@@ -14,11 +15,13 @@ const airports = [
 ]
 
 export default function FlightSearchForm() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('book')
   const [trip, setTrip] = useState<Trip>('roundtrip')
   const [from, setFrom] = useState('HAN')
   const [fromCity, setFromCity] = useState('Hà Nội, Việt Nam')
   const [to, setTo] = useState('')
+  const [toCity, setToCity] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [showToDropdown, setShowToDropdown] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -30,9 +33,20 @@ export default function FlightSearchForm() {
   const [showDateDropdown, setShowDateDropdown] = useState(false)
   const [selectedDate, setSelectedDate] = useState('CN - 24/05/2026')
   const dateRef = useRef<HTMLDivElement>(null)
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [departDate, setDepartDate] = useState('')
+  const [returnDate, setReturnDate] = useState('')
+  const [calMonth1, setCalMonth1] = useState(4) // May (0-indexed)
+  const [calYear1, setCalYear1] = useState(2026)
+  const datePickerRef = useRef<HTMLDivElement>(null)
+  const [adults, setAdults] = useState(1)
+  const [children, setChildren] = useState(0)
+  const [infants, setInfants] = useState(0)
+  const [showPassengers, setShowPassengers] = useState(false)
+  const passengersRef = useRef<HTMLDivElement>(null)
   const [showScheduleDropdown, setShowScheduleDropdown] = useState(false)
   const [scheduleFrom, setScheduleFrom] = useState('HAN')
-  const [scheduleFromCity, setScheduleFromCity] = useState('Hà Nội, Việt Nam')
+  const [scheduleFromCity] = useState('Hà Nội, Việt Nam')
   const [scheduleTo, setScheduleTo] = useState('')
   const [scheduleSearchQuery, setScheduleSearchQuery] = useState('')
   const [scheduleTrip, setScheduleTrip] = useState<'roundtrip'|'oneway'>('roundtrip')
@@ -64,6 +78,12 @@ export default function FlightSearchForm() {
       }
       if (scheduleDropdownRef.current && !scheduleDropdownRef.current.contains(e.target as Node)) {
         setShowScheduleDropdown(false)
+      }
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setShowDatePicker(false)
+      }
+      if (passengersRef.current && !passengersRef.current.contains(e.target as Node)) {
+        setShowPassengers(false)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -107,6 +127,7 @@ export default function FlightSearchForm() {
           {/* Content */}
           <div className="p-6 md:p-8">
             {tab === 'book' && (
+              <>
               <div className="flex items-center gap-4">
                 {/* From */}
                 <div className="flex-1 border-b border-vna-border pb-4 relative" ref={dropdownRef}>
@@ -186,7 +207,7 @@ export default function FlightSearchForm() {
 
                 {/* Swap */}
                 <button
-                  onClick={() => { const tmp = from; setFrom(to); setTo(tmp) }}
+                  onClick={() => { const tmp = from; const tmpCity = fromCity; setFrom(to); setFromCity(toCity); setTo(tmp); setToCity(tmpCity) }}
                   className="w-10 h-10 border-2 border-vna-border text-vna-gray-text hover:text-vna-teal flex items-center justify-center transition-colors"
                   style={{ borderColor: '#E5E5E5' }}
                   aria-label="Đổi"
@@ -202,10 +223,10 @@ export default function FlightSearchForm() {
                   </div>
                   <button
                     onClick={() => { setShowToDropdown(!showToDropdown); setFormActive(true) }}
-                    className="text-[48px] font-bold leading-none w-full text-left"
-                    style={{ color: to ? '#1A2B4A' : '#008080' }}
+                    className="flex items-baseline gap-3 w-full text-left"
                   >
-                    {to || 'Chọn điểm đến'}
+                    <span className="text-[48px] font-bold leading-none" style={{ color: to ? '#1A2B4A' : '#008080' }}>{to || 'Chọn điểm đến'}</span>
+                    {toCity && <span className="text-[12px] border px-2 py-0.5 rounded-full" style={{ color: '#008080', borderColor: '#008080' }}>{toCity}</span>}
                   </button>
 
                   {showToDropdown && (
@@ -244,7 +265,7 @@ export default function FlightSearchForm() {
                         {airports.filter(a => a.city.toLowerCase().includes(toSearchQuery.toLowerCase()) || a.code.toLowerCase().includes(toSearchQuery.toLowerCase())).map((a, i) => (
                           <button
                             key={i}
-                            onClick={() => { setTo(a.code); setShowToDropdown(false); setToSearchQuery('') }}
+                            onClick={() => { setTo(a.code); setToCity(`${a.city}, ${a.country}`); setShowToDropdown(false); setToSearchQuery(''); setShowDatePicker(true) }}
                             className={`w-full flex items-center justify-between px-4 py-3 hover:bg-vna-gray-bg transition-colors border-b border-vna-border/30 last:border-0`}
                           >
                             <div className="text-left">
@@ -269,6 +290,198 @@ export default function FlightSearchForm() {
                   )}
                 </div>
               </div>
+
+              {/* Date & Passengers row - shows when both from and to are selected */}
+              {from && to && (
+                <div className="mt-6 flex items-start gap-8">
+                  {/* Date picker */}
+                  <div className="flex-1 border-b border-vna-border pb-4 relative" ref={datePickerRef}>
+                    <div
+                      className="flex items-center gap-2 text-vna-gray-light text-[13px] mb-2 cursor-pointer"
+                      onClick={() => setShowDatePicker(!showDatePicker)}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008080" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      {trip === 'oneway' ? 'Ngày đi' : 'Ngày đi - Ngày về'}
+                    </div>
+                    <button
+                      onClick={() => setShowDatePicker(!showDatePicker)}
+                      className="text-[24px] font-bold"
+                      style={{ color: departDate ? '#1A2B4A' : '#9ca3af' }}
+                    >
+                      {departDate && returnDate && trip !== 'oneway'
+                        ? `${departDate} - ${returnDate}`
+                        : departDate
+                          ? trip === 'oneway' ? departDate : `${departDate} - DD/MM/YYYY`
+                          : trip === 'oneway' ? 'DD/MM/YYYY' : 'DD/MM/YYYY - DD/MM/YYYY'}
+                    </button>
+
+                  {showDatePicker && (
+                    <div className="absolute top-full left-0 mt-2 bg-white shadow-2xl border border-gray-200 z-50 rounded-xl p-4 w-[620px]">
+                      {/* Month navigation */}
+                      <div className="flex items-center justify-between mb-4">
+                        <button onClick={() => { if (calMonth1 === 0) { setCalMonth1(11); setCalYear1(calYear1 - 1) } else setCalMonth1(calMonth1 - 1) }} className="p-1 hover:bg-gray-100 rounded">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                        <div className="flex gap-8">
+                          <span className="font-medium text-[14px]">Tháng {calMonth1 + 1} — {calYear1}</span>
+                          <span className="font-medium text-[14px]">Tháng {(calMonth1 + 1) % 12 + 1} — {calMonth1 === 11 ? calYear1 + 1 : calYear1}</span>
+                        </div>
+                        <button onClick={() => { if (calMonth1 === 11) { setCalMonth1(0); setCalYear1(calYear1 + 1) } else setCalMonth1(calMonth1 + 1) }} className="p-1 hover:bg-gray-100 rounded">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
+                      </div>
+
+                      {/* Calendars */}
+                      <div className="flex gap-4">
+                        {[0, 1].map(offset => {
+                          const m = (calMonth1 + offset) % 12
+                          const y = calMonth1 + offset > 11 ? calYear1 + 1 : calYear1
+                          const firstDay = new Date(y, m, 1).getDay()
+                          const daysInMonth = new Date(y, m + 1, 0).getDate()
+                          const days: (number | null)[] = Array(firstDay).fill(null).concat(Array.from({ length: daysInMonth }, (_, i) => i + 1))
+
+                          return (
+                            <div key={offset} className="flex-1">
+                              <div className="grid grid-cols-7 text-center text-[11px] text-gray-500 mb-2">
+                                {['CN', 'Th2', 'Th3', 'Th4', 'Th5', 'Th6', 'Th7'].map(d => <span key={d}>{d}</span>)}
+                              </div>
+                              <div className="grid grid-cols-7 text-center gap-y-1">
+                                {days.map((day, i) => {
+                                  if (!day) return <span key={i} />
+                                  const dateStr = `${String(day).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}/${y}`
+                                  const isDepart = departDate === dateStr
+                                  const isReturn = returnDate === dateStr
+                                  const today = new Date()
+                                  const cellDate = new Date(y, m, day)
+                                  const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate())
+
+                                  return (
+                                    <button
+                                      key={i}
+                                      disabled={isPast}
+                                      onClick={() => {
+                                        if (trip === 'oneway') {
+                                          setDepartDate(dateStr)
+                                          setShowDatePicker(false)
+                                        } else {
+                                          if (!departDate || (departDate && returnDate)) {
+                                            setDepartDate(dateStr)
+                                            setReturnDate('')
+                                          } else {
+                                            // Ensure return > depart
+                                            const [dd, dm, dy] = departDate.split('/').map(Number)
+                                            const depDate = new Date(dy, dm - 1, dd)
+                                            if (cellDate > depDate) {
+                                              setReturnDate(dateStr)
+                                              setShowDatePicker(false)
+                                            } else {
+                                              setDepartDate(dateStr)
+                                              setReturnDate('')
+                                            }
+                                          }
+                                        }
+                                      }}
+                                      className={`py-2 text-[13px] rounded transition-colors ${
+                                        isPast ? 'text-gray-300 cursor-not-allowed' :
+                                        isDepart || isReturn ? 'bg-teal-700 text-white font-bold' :
+                                        'hover:bg-gray-100'
+                                      }`}
+                                    >
+                                      {day}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 pt-3 border-t border-gray-200 text-[11px] text-gray-500">
+                        Giá vé khứ hồi tính bằng VND cho 1 người lớn cho chuyến đi
+                      </div>
+                    </div>
+                  )}
+                  </div>
+
+                  {/* Passenger selector */}
+                  {(departDate && (trip === 'oneway' || returnDate)) && (
+                    <div className="flex-1 border-b border-vna-border pb-4 relative" ref={passengersRef}>
+                      <div className="flex items-center gap-2 text-vna-gray-light text-[13px] mb-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008080" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+                        Hành khách
+                      </div>
+                      <button
+                        onClick={() => setShowPassengers(!showPassengers)}
+                        className="text-[24px] font-bold"
+                        style={{ color: '#1A2B4A' }}
+                      >
+                        {String(adults + children + infants).padStart(2, '0')} Hành khách
+                      </button>
+
+                      {showPassengers && (
+                        <div className="absolute top-full left-0 mt-2 bg-white shadow-2xl border border-gray-200 z-50 rounded-xl p-5 w-[300px]">
+                          <p className="font-semibold text-[15px] text-gray-900 mb-4">Hành khách</p>
+
+                          {/* Adults */}
+                          <div className="flex items-center justify-between mb-4">
+                            <button onClick={() => setAdults(Math.max(1, adults - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-teal-600">−</button>
+                            <div className="text-center">
+                              <p className="text-[14px] font-medium">{adults} Người lớn</p>
+                              <p className="text-[12px] text-gray-400">Từ 12 tuổi</p>
+                            </div>
+                            <button onClick={() => setAdults(adults + 1)} className="w-8 h-8 rounded-full border border-teal-600 flex items-center justify-center text-teal-600 hover:bg-teal-50">+</button>
+                          </div>
+
+                          {/* Children */}
+                          <div className="flex items-center justify-between mb-4">
+                            <button onClick={() => setChildren(Math.max(0, children - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-teal-600">−</button>
+                            <div className="text-center">
+                              <p className="text-[14px] font-medium">{children} Trẻ em</p>
+                              <p className="text-[12px] text-gray-400">2-12 tuổi</p>
+                            </div>
+                            <button onClick={() => setChildren(children + 1)} className="w-8 h-8 rounded-full border border-teal-600 flex items-center justify-center text-teal-600 hover:bg-teal-50">+</button>
+                          </div>
+
+                          {/* Infants */}
+                          <div className="flex items-center justify-between mb-4">
+                            <button onClick={() => setInfants(Math.max(0, infants - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-teal-600">−</button>
+                            <div className="text-center">
+                              <p className="text-[14px] font-medium">{infants} Trẻ em</p>
+                              <p className="text-[12px] text-gray-400">Dưới 2 tuổi</p>
+                            </div>
+                            <button onClick={() => setInfants(infants + 1)} className="w-8 h-8 rounded-full border border-teal-600 flex items-center justify-center text-teal-600 hover:bg-teal-50">+</button>
+                          </div>
+
+                          <button
+                            onClick={() => setShowPassengers(false)}
+                            className="w-full text-white font-medium py-2 rounded text-[14px] mt-2"
+                            style={{ backgroundColor: '#006885' }}
+                          >
+                            Chọn
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Action buttons */}
+              {from && to && (
+                <div className="flex items-center justify-end gap-4 mt-6">
+                  <button className="flex items-center gap-2 text-[13px] text-gray-700 hover:text-teal-700 transition-colors">
+                    <span>🎫</span> Mã khuyến mại
+                  </button>
+                  <button
+                    onClick={() => navigate(`/flights?from=${from}&to=${to}&fromCity=${encodeURIComponent(fromCity)}&toCity=${encodeURIComponent(toCity)}&date=${departDate}&passengers=${adults + children + infants}`)}
+                    className="text-white font-semibold px-6 py-3 text-[14px] rounded-lg transition-colors" style={{ backgroundColor: '#006885' }}
+                  >
+                    Tìm chuyến bay
+                  </button>
+                </div>
+              )}
+              </>
             )}
 
             {tab === 'manage' && (

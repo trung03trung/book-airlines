@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Search, ChevronLeft, ChevronRight, Globe, Compass, CreditCard, Briefcase, Route, Tv, Star, HelpCircle, MessageCircle, X, User } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import LoginModal from './LoginModal'
 
 const navItems = [
   { icon: Compass, label: 'Khám Phá', sections: [
@@ -32,6 +34,7 @@ const navItems = [
 
 export default function Header({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const [activeMenu, setActiveMenu] = useState<number | null>(null)
+  const [showLogin, setShowLogin] = useState(false)
 
   const sidebarWidth = collapsed ? 'w-[60px]' : 'w-[200px]'
   const sidebarPx = collapsed ? 60 : 200
@@ -76,15 +79,15 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
         {/* Bottom - Login icon when collapsed, full panel when expanded */}
         {collapsed ? (
           <div className="pb-4 flex justify-center">
-            <button className="w-9 h-9 text-white flex items-center justify-center" style={{ backgroundColor: '#1A2B4A' }}>
+            <button onClick={() => setShowLogin(true)} className="w-9 h-9 text-white flex items-center justify-center" style={{ backgroundColor: '#1A2B4A' }}>
               <User size={16} />
             </button>
           </div>
         ) : (
           <div className="px-4 py-4" style={{ backgroundColor: '#1A2B4A' }}>
             <p className="text-[11px] text-white/80 font-semibold tracking-wider text-center mb-2 uppercase">Lotusmiles</p>
-            <button className="w-full border border-white/50 text-white text-[12px] py-1.5 mb-2 hover:bg-white/10 transition-colors">Đăng nhập</button>
-            <button className="w-full border border-white/50 text-white text-[12px] py-1.5 hover:bg-white/10 transition-colors">Đăng ký</button>
+            <button onClick={() => setShowLogin(true)} className="w-full border border-white/50 text-white text-[12px] py-1.5 mb-2 hover:bg-white/10 transition-colors">Đăng nhập</button>
+            <Link to="/register" className="block w-full border border-white/50 text-white text-[12px] py-1.5 text-center hover:bg-white/10 transition-colors">Đăng ký</Link>
           </div>
         )}
       </aside>
@@ -151,6 +154,8 @@ export default function Header({ collapsed, onToggle }: { collapsed: boolean; on
           </button>
         </div>
       </div>
+
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </>
   )
 }

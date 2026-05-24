@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ChevronRight } from 'lucide-react'
 
 const slides = [
-  { subtitle: 'Giảm đến 10% – Bay xa hơn, tiết kiệm hơn', title: 'Weekend Sale', cta: 'Khám phá ngay', img: 'https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=1600&h=700&fit=crop' },
+  { subtitle: 'Giảm đến 10% – Bay xa hơn, tiết kiệm hơn', title: 'Weekend Sale', cta: 'Khám phá ngay', img: 'https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=1600&h=700&fit=crop' },
   { subtitle: 'Bay muôn nơi', title: 'Tiết kiệm tới 20%', cta: 'Khám phá ngay', img: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1600&h=700&fit=crop' },
   { subtitle: 'Ưu đãi hấp dẫn cho mọi hành trình', title: 'Bay thỏa thích', cta: 'Khám phá ngay', img: 'https://images.unsplash.com/photo-1530841377377-3ff06c0ca713?w=1600&h=700&fit=crop' },
   { subtitle: 'HÀNH TRÌNH VIỆT NAM - PERTH, ÚC', title: 'BAY XA - ƯU ĐÃI TỐT', cta: 'Mua ngay', img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1600&h=700&fit=crop' },
