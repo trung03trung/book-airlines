@@ -1,21 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRightLeft, Plane, Search } from 'lucide-react'
+import { fetchCities } from '../services/cityApi'
 
 type Tab = 'book' | 'manage' | 'checkin' | 'status' | 'schedule'
 type Trip = 'roundtrip' | 'oneway' | 'multi'
 
-const airports = [
-  { city: 'Hà Nội', country: 'Việt Nam', code: 'HAN', full: 'Hà Nội (HAN)' },
-  { city: 'Tp. Hồ Chí Minh', country: 'Việt Nam', code: 'SGN', full: 'Tp. Hồ Chí Minh (SGN)' },
-  { city: 'Đà Nẵng', country: 'Việt Nam', code: 'DAD', full: 'Đà Nẵng (DAD)' },
-  { city: 'Phú Quốc', country: 'Việt Nam', code: 'PQC', full: 'Phú Quốc (PQC)' },
-  { city: 'Nha Trang', country: 'Việt Nam', code: 'CXR', full: 'Nha Trang (CXR)' },
-  { city: 'Huế', country: 'Việt Nam', code: 'HUI', full: 'Huế (HUI)' },
-]
-
 export default function FlightSearchForm() {
   const navigate = useNavigate()
+  const [airports, setAirports] = useState<{ city: string; country: string; code: string; full: string }[]>([])
   const [tab, setTab] = useState<Tab>('book')
   const [trip, setTrip] = useState<Trip>('roundtrip')
   const [from, setFrom] = useState('HAN')
@@ -88,6 +81,12 @@ export default function FlightSearchForm() {
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  useEffect(() => {
+    fetchCities().then(cities => {
+      setAirports(cities.map(c => ({ city: c.cityName, country: c.countryName, code: c.cityCode, full: `${c.cityName} (${c.cityCode})` })))
+    }).catch(() => {})
   }, [])
 
   const tabs: { key: Tab; label: string }[] = [

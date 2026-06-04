@@ -1,11 +1,16 @@
 import { useState } from 'react'
 import { X, EyeOff, Eye } from 'lucide-react'
+import { login } from '../services/authApi'
 
 type Tab = 'card' | 'email' | 'phone'
 
 export default function LoginModal({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<Tab>('card')
+  const [tab, setTab] = useState<Tab>('email')
   const [showPw, setShowPw] = useState(false)
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'card', label: 'Số thẻ' },
@@ -64,11 +69,28 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Form */}
-        <form onSubmit={e => e.preventDefault()}>
+        {error && <p className="text-red-500 text-[13px] mb-3">{error}</p>}
+        <form onSubmit={async e => {
+          e.preventDefault()
+          setError('')
+          setLoading(true)
+          try {
+            const res = await login({ email: identifier, password })
+            localStorage.setItem('accessToken', res.data.accessToken)
+            localStorage.setItem('refreshToken', res.data.refreshToken)
+            onClose()
+          } catch (err: any) {
+            setError(err.message)
+          } finally {
+            setLoading(false)
+          }
+        }}>
           <label className="block text-[14px] text-gray-700 mb-1">{labels[tab]}</label>
           <input
             type={tab === 'email' ? 'email' : 'text'}
             placeholder={placeholders[tab]}
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
             className="w-full border border-gray-300 rounded px-4 py-3 text-[14px] mb-4 focus:outline-none focus:border-teal-600"
           />
 
@@ -77,6 +99,8 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
             <input
               type={showPw ? 'text' : 'password'}
               placeholder="Nhập mật khẩu"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
               className="w-full border border-gray-300 rounded px-4 py-3 text-[14px] pr-10 focus:outline-none focus:border-teal-600"
             />
             <button
@@ -90,9 +114,10 @@ export default function LoginModal({ onClose }: { onClose: () => void }) {
 
           <button
             type="submit"
-            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-medium py-3 rounded text-[15px] transition-colors"
+            disabled={loading}
+            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-medium py-3 rounded text-[15px] transition-colors disabled:opacity-50"
           >
-            Đăng nhập
+            {loading ? 'Đang xử lý...' : 'Đăng nhập'}
           </button>
         </form>
 

@@ -1,9 +1,38 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { register } from '../services/authApi'
 
 export default function RegisterPage() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [countryCode, setCountryCode] = useState('84')
   const [phone, setPhone] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    setError('')
+    setLoading(true)
+    try {
+      await register({
+        username,
+        email,
+        password,
+        firstName,
+        lastName,
+        phone: phone ? `+${countryCode}${phone}` : undefined,
+      })
+      navigate('/')
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-50px)]">
@@ -40,6 +69,48 @@ export default function RegisterPage() {
         <p className="text-[14px] font-semibold text-gray-800 mb-4">Thông tin đăng ký</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Username */}
+          <div>
+            <label className="block text-[13px] text-gray-700 mb-1">
+              Tên đăng nhập <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Nhập tên đăng nhập"
+              className="w-full border-b border-gray-300 py-2 text-[14px] focus:outline-none focus:border-teal-600 bg-transparent"
+            />
+          </div>
+
+          {/* First Name */}
+          <div>
+            <label className="block text-[13px] text-gray-700 mb-1">
+              Tên <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+              placeholder="Nhập tên"
+              className="w-full border-b border-gray-300 py-2 text-[14px] focus:outline-none focus:border-teal-600 bg-transparent"
+            />
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label className="block text-[13px] text-gray-700 mb-1">
+              Họ <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              placeholder="Nhập họ"
+              className="w-full border-b border-gray-300 py-2 text-[14px] focus:outline-none focus:border-teal-600 bg-transparent"
+            />
+          </div>
+
           {/* Email */}
           <div>
             <label className="block text-[13px] text-gray-700 mb-1">
@@ -77,7 +148,7 @@ export default function RegisterPage() {
           {/* Số điện thoại */}
           <div>
             <label className="block text-[13px] text-gray-700 mb-1">
-              Số điện thoại <span className="text-red-500">*</span>
+              Số điện thoại
             </label>
             <input
               type="tel"
@@ -87,12 +158,32 @@ export default function RegisterPage() {
               className="w-full border-b border-gray-300 py-2 text-[14px] focus:outline-none focus:border-teal-600 bg-transparent"
             />
           </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-[13px] text-gray-700 mb-1">
+              Mật khẩu <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)"
+              className="w-full border-b border-gray-300 py-2 text-[14px] focus:outline-none focus:border-teal-600 bg-transparent"
+            />
+          </div>
         </div>
+
+        {error && <p className="text-red-500 text-[13px] mt-4">{error}</p>}
 
         {/* Button */}
         <div className="flex justify-end mt-8">
-          <button className="border border-gray-800 text-gray-800 px-6 py-2 text-[14px] font-medium hover:bg-gray-800 hover:text-white transition-colors">
-            Tiếp tục
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="border border-gray-800 text-gray-800 px-6 py-2 text-[14px] font-medium hover:bg-gray-800 hover:text-white transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Đang xử lý...' : 'Tiếp tục'}
           </button>
         </div>
       </div>
