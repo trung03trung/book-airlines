@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRightLeft, Plane, Search } from 'lucide-react'
-import { fetchCities } from '../services/cityApi'
+import { fetchAirports } from '../services/cityApi'
 
 type Tab = 'book' | 'manage' | 'checkin' | 'status' | 'schedule'
 type Trip = 'roundtrip' | 'oneway' | 'multi'
@@ -84,8 +84,8 @@ export default function FlightSearchForm() {
   }, [])
 
   useEffect(() => {
-    fetchCities().then(cities => {
-      setAirports(cities.map(c => ({ city: c.cityName, country: c.countryName, code: c.cityCode, full: `${c.cityName} (${c.cityCode})` })))
+    fetchAirports().then(data => {
+      setAirports(data.map(a => ({ city: a.cityName, country: a.countryName, code: a.iataCode, full: `${a.airportName} (${a.iataCode})` })))
     }).catch(() => {})
   }, [])
 

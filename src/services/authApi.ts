@@ -1,4 +1,4 @@
-const BASE_URL = 'https://auth-service-5295541796.asia-southeast1.run.app/api/auth'
+const BASE_URL = 'https://kong-gateway-5295541796.asia-southeast1.run.app/auth-service/api/auth'
 
 export interface LoginRequest {
   email: string

@@ -1,20 +1,22 @@
 const BASE_URL = 'https://kong-gateway-5295541796.asia-southeast1.run.app/flight-service/api/v1'
 
-export interface City {
+export interface Airport {
   countryName: string
   cityName: string
-  cityCode: string
+  airportName: string
+  iataCode: string
+  icaoCode: string | null
 }
 
-interface CityResponse {
+interface AirportResponse {
   success: boolean
-  data: City[]
+  data: Airport[]
   timestamp: string
 }
 
-export async function fetchCities(): Promise<City[]> {
-  const res = await fetch(`${BASE_URL}/cities`)
-  if (!res.ok) throw new Error('Failed to fetch cities')
-  const json: CityResponse = await res.json()
+export async function fetchAirports(): Promise<Airport[]> {
+  const res = await fetch(`${BASE_URL}/airports`)
+  if (!res.ok) throw new Error('Failed to fetch airports')
+  const json: AirportResponse = await res.json()
   return json.data
 }
